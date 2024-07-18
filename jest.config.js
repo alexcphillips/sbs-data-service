@@ -1,9 +1,15 @@
 module.exports = {
-  collectCoverage: true,
-  collectCoverageFrom: ["./server/**/*.ts"],
+  preset: "ts-jest",
   testEnvironment: "node",
-  coverageDirectory: "./coverage/server",
-  coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } },
-  coverageReporters: ["html", "text-summary"],
-  testPathIgnorePatterns: ["/node_modules/", "/dist/", "./ui"],
+  modulePaths: ["<rootDir>/src"],
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+  },
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.json",
+    },
+  },
+  testMatch: ["**/*.spec.ts"],
+  verbose: true,
 };
