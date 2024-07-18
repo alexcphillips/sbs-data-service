@@ -1,36 +1,45 @@
 import axios from "axios";
 import { getUUIDByUsername } from "./uuid";
 import { AppConstants } from "../app.constants";
+import logger from "../logger";
 
 jest.mock("axios");
+jest.mock("../logger");
 
 describe("getUUIDByUsername", () => {
+  const mockUsername = "testuser";
+  const mockUUIDWithDashes = "1234-5678-9012-3456-7890";
+  const mockUUIDWithoutDashes = "12345678901234567890";
+
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
-  it("fetches UUID from Ashcon API", async () => {
-    const username = "testuser";
-    const mockData = { uuid: "1234567890" };
-    const mockedAxios = axios as jest.Mocked<typeof axios>;
+  it("should fetch UUID and remove dashes if specified", async () => {
+    (axios.get as jest.Mock).mockResolvedValue({ data: { uuid: mockUUIDWithDashes } });
 
-    mockedAxios.get.mockResolvedValueOnce({ data: mockData });
-    const result = await getUUIDByUsername(username);
+    const result = await getUUIDByUsername({ username: mockUsername, removeDashes: true });
 
-    expect(result).toEqual(mockData);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockedAxios.get).toHaveBeenCalledWith(`${AppConstants.ASHCON_ENDPOINT}/user/${username}`);
+    expect(axios.get).toHaveBeenCalledWith(`${AppConstants.ASHCON_ENDPOINT}/user/${mockUsername}`);
+    expect(result).toBe(mockUUIDWithoutDashes);
+    expect(logger.info).toHaveBeenCalledWith(`UUID: ${mockUUIDWithoutDashes}`);
   });
 
-  it("handles errors gracefully", async () => {
-    const username = "testuser";
-    const errorMessage = "Network Error";
-    const mockedAxios = axios as jest.Mocked<typeof axios>;
+  it("should fetch UUID and keep dashes if not specified", async () => {
+    (axios.get as jest.Mock).mockResolvedValue({ data: { uuid: mockUUIDWithDashes } });
 
-    mockedAxios.get.mockRejectedValueOnce(new Error(errorMessage));
-    await expect(getUUIDByUsername(username)).rejects.toThrow(errorMessage);
+    const result = await getUUIDByUsername({ username: mockUsername, removeDashes: false });
 
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockedAxios.get).toHaveBeenCalledWith(`${AppConstants.ASHCON_ENDPOINT}/user/${username}`);
+    expect(axios.get).toHaveBeenCalledWith(`${AppConstants.ASHCON_ENDPOINT}/user/${mockUsername}`);
+    expect(result).toBe(mockUUIDWithDashes);
+    expect(logger.info).toHaveBeenCalledWith(`UUID: ${mockUUIDWithDashes}`);
+  });
+
+  it("should throw an error if axios request fails", async () => {
+    const mockError = new Error("Network Error");
+    (axios.get as jest.Mock).mockRejectedValue(mockError);
+
+    await expect(getUUIDByUsername({ username: mockUsername, removeDashes: true })).rejects.toThrow("Network Error");
+    expect(logger.error).toHaveBeenCalledWith("Error fetching UUID:", mockError);
   });
 });

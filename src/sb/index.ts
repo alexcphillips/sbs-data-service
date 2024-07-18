@@ -1,1 +1,1 @@
-export default 4;
+export * from "./profiles";
