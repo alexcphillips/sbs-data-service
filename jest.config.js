@@ -6,4 +6,9 @@ module.exports = {
   coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } },
   coverageReporters: ["html", "text-summary"],
   testPathIgnorePatterns: ["/node_modules/", "/dist/", "./ui"],
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.json",
+    },
+  },
 };
