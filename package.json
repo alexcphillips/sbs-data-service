@@ -1,7 +1,7 @@
 {
   "name": "sbs-data-service",
   "version": "1.0.0",
-  "description": "A microservice responsible for fetching, processing, and providing data related to SkyBlock statistics. Built with TypeScript, Express, and integrated with various APIs and services.",
+  "description": "A service responsible for fetching, processing, and providing data related to SkyBlock statistics.",
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
